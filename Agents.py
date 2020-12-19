@@ -1,6 +1,10 @@
 from config import *
 from utilities import *
 import random
+from pprint import pprint
+
+def isValid(position, game):
+    return position[0] in range(len(game.valid_spots)) and position[1] in range(len(game.valid_spots[0])) and game.valid_spots[position[0]][position[1]]
 
 class Shark:
 
@@ -51,7 +55,7 @@ class Orca():
         self.key = None
         self.points = 0
 
-    def move(self): # move and change direction with wasd
+    def move(self, game): # move and change direction with wasd
         moves = {
             "w": lambda x, y : (x, y - 1),
             "s": lambda x, y : (x, y + 1),
@@ -61,7 +65,7 @@ class Orca():
         }
 
         attemptedMove = moves[self.key](self.X, self.Y)
-        if isValid(attemptedMove):
+        if isValid(attemptedMove, game):
             self.X, self.Y = attemptedMove
 
     def checkGameOver(self, coords):

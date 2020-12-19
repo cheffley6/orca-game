@@ -10,11 +10,20 @@ from config import *
 from time import sleep
 import os
 
-
+import numpy as np
 
 tilesize = 10            
 
 class GameLoop:
+
+    def __init__(self, chamber):
+        self.valid_spots = boardHeight * [boardWidth * [True]]
+        print(chamber.getX(), chamber.getY())
+        print("BEFORE:", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]])
+        self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]] = (chamber.getDims()[0] + 1) * [(chamber.getDims()[1] + * [False]]
+        # self.valid_spots[chamber.getEntry()[0]][chamber.getEntry()[1]] = True
+        # self.valid_spots[chamber.getX() + 1][chamber.getY() + 1] = True
+        print("AFTER :", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]])
 
     def repaint(self):
 
@@ -23,7 +32,7 @@ class GameLoop:
 
         if not orca.checkGameOver((shark.getX(), shark.getY())):
 
-            orca.move()
+            orca.move(self)
             shark.hunt((orca.getX(), orca.getY()))
             orca.checkGameOver((shark.getX(), shark.getY()))
             canvas.create_rectangle(orca.getX() * tilesize, orca.getY() * tilesize,
@@ -64,12 +73,12 @@ class GameLoop:
             i = 0
 
             canvas.create_text(150, 100, fill="red", font="Times 32 bold", text="GAME OVER!")
-            while i < 2000:    
-                i += 1
-            i = 0
-            canvas.create_text(150, 100, fill="black", font="Times 32 bold", text="GAME OVER!")
-            while i < 2000:    
-                i += 1
+            # while i < 2000:    
+            #     i += 1
+            # i = 0
+            # canvas.create_text(150, 100, fill="black", font="Times 32 bold", text="GAME OVER!")
+            # while i < 2000:    
+            #     i += 1
 
 
 
@@ -91,7 +100,7 @@ while mixer.music.get_busy():
     pass
 mixer.music.load("audio/chase_1_copy.wav")
 mixer.music.play(-1)
-gameLoop = GameLoop()
+gameLoop = GameLoop(chamber)
 gameLoop.repaint()
 
 root.title("Orca")
