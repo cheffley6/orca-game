@@ -18,12 +18,12 @@ class GameLoop:
 
     def __init__(self, chamber):
         self.valid_spots = boardHeight * [boardWidth * [True]]
-        print(chamber.getX(), chamber.getY())
-        print("BEFORE:", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]])
-        self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]] = (chamber.getDims()[0] + 1) * [(chamber.getDims()[1] + * [False]]
-        # self.valid_spots[chamber.getEntry()[0]][chamber.getEntry()[1]] = True
-        # self.valid_spots[chamber.getX() + 1][chamber.getY() + 1] = True
-        print("AFTER :", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]])
+        # print(chamber.getX(), chamber.getY())
+        # print("BEFORE:", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]])
+        # self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]] = (chamber.getDims()[0] + 1) * [(chamber.getDims()[1] + * [False]]
+        # # self.valid_spots[chamber.getEntry()[0]][chamber.getEntry()[1]] = True
+        # # self.valid_spots[chamber.getX() + 1][chamber.getY() + 1] = True
+        # print("AFTER :", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]])
 
     def repaint(self):
 
@@ -73,6 +73,7 @@ class GameLoop:
             i = 0
 
             canvas.create_text(150, 100, fill="red", font="Times 32 bold", text="GAME OVER!")
+
             # while i < 2000:    
             #     i += 1
             # i = 0
