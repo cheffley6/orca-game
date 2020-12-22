@@ -17,17 +17,22 @@ tilesize = 10
 class GameLoop:
 
     def __init__(self, chamber):
-        self.valid_spots = boardHeight * [boardWidth * [True]]
-        # print(chamber.getX(), chamber.getY())
+        self.valid_chase_spots = boardHeight * [boardWidth * [True]]
+        print(chamber.getX(), chamber.getY(), len(self.valid_chase_spots), len(self.valid_chase_spots[0]))
         # print("BEFORE:", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]])
-        # self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]] = (chamber.getDims()[0] + 1) * [(chamber.getDims()[1] + * [False]]
+        print(chamber.getY(), chamber.getY()+chamber.getDims()[0])
+        print(chamber.getX(), chamber.getX()+chamber.getDims()[1])
+        for index, entry in enumerate(self.valid_chase_spots[chamber.getX():chamber.getX()+chamber.getDims()[0]]):
+            entry[chamber.getY():chamber.getY()+chamber.getDims()[1]] = chamber.getDims()[1] * [False]
+            self.valid_chase_spots[index] = entry
+        # [:] = (chamber.getDims()[0] + 1) * [chamber.getDims()[1] * [False]]
         # # self.valid_spots[chamber.getEntry()[0]][chamber.getEntry()[1]] = True
         # # self.valid_spots[chamber.getX() + 1][chamber.getY() + 1] = True
         # print("AFTER :", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]])
+        print(self.valid_chase_spots)
+    def repaint_chase(self):
 
-    def repaint(self):
-
-        canvas.after(200, self.repaint)
+        canvas.after(200, self.repaint_chase)
         canvas.delete(ALL)
 
         if not orca.checkGameOver((shark.getX(), shark.getY())):
@@ -73,7 +78,7 @@ class GameLoop:
             i = 0
 
             canvas.create_text(150, 100, fill="red", font="Times 32 bold", text="GAME OVER!")
-
+            
             # while i < 2000:    
             #     i += 1
             # i = 0
@@ -93,16 +98,19 @@ canvas = Canvas(root, width=300, height=300)
 canvas.configure(background="blue")
 canvas.pack()
 
-mixer.init()
+def start_music():
+    mixer.init()
+    mixer.music.load("audio/snare_intro_copy.wav")
+    mixer.music.play()
+    while mixer.music.get_busy():
+        pass
+    mixer.music.load("audio/puzzle_1_copy.wav")
+    mixer.music.play(-1)
 
-mixer.music.load("audio/snare_intro_copy.wav")
-mixer.music.play()
-while mixer.music.get_busy():
-    pass
-mixer.music.load("audio/chase_1_copy.wav")
-mixer.music.play(-1)
+start_music()
+
 gameLoop = GameLoop(chamber)
-gameLoop.repaint()
+gameLoop.repaint_chase()
 
 root.title("Orca")
 root.bind('<KeyPress>', orca.getKey)

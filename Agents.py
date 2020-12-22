@@ -4,7 +4,7 @@ import random
 from pprint import pprint
 
 def isValid(position, game):
-    return position[0] in range(len(game.valid_spots)) and position[1] in range(len(game.valid_spots[0])) and game.valid_spots[position[0]][position[1]]
+    return position[0] in range(len(game.valid_chase_spots)) and position[1] in range(len(game.valid_chase_spots[0])) and game.valid_chase_spots[position[0]][position[1]]
 
 class Shark:
 
@@ -65,6 +65,7 @@ class Orca():
         }
 
         attemptedMove = moves[self.key](self.X, self.Y)
+        
         if isValid(attemptedMove, game):
             self.X, self.Y = attemptedMove
 
