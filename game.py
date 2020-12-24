@@ -14,45 +14,30 @@ import numpy as np
 
 tilesize = 10            
 
+INCLUDE_SHARK = True
+
 class GameLoop:
 
     def __init__(self, chamber):
-        self.valid_chase_spots = boardHeight * [boardWidth * [True]]
-        print(chamber.getX(), chamber.getY(), len(self.valid_chase_spots), len(self.valid_chase_spots[0]))
-        # print("BEFORE:", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]])
-        print(chamber.getY(), chamber.getY()+chamber.getDims()[0])
-        print(chamber.getX(), chamber.getX()+chamber.getDims()[1])
-        for index, entry in enumerate(self.valid_chase_spots[chamber.getX():chamber.getX()+chamber.getDims()[0]]):
-            entry[chamber.getY():chamber.getY()+chamber.getDims()[1]] = chamber.getDims()[1] * [False]
+        self.valid_chase_spots = np.empty((boardHeight, boardWidth))
+        for index, entry in enumerate(self.valid_chase_spots):
+            entry.fill(True)
+            if index in range(chamber.getY(), chamber.getY()+chamber.getDims()[0]):
+                entry[chamber.getX():chamber.getX()+chamber.getDims()[1]] = chamber.getDims()[1] * [False]
             self.valid_chase_spots[index] = entry
+        # print(self.valid_chase_spots)
         # [:] = (chamber.getDims()[0] + 1) * [chamber.getDims()[1] * [False]]
         # # self.valid_spots[chamber.getEntry()[0]][chamber.getEntry()[1]] = True
         # # self.valid_spots[chamber.getX() + 1][chamber.getY() + 1] = True
         # print("AFTER :", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]])
-        print(self.valid_chase_spots)
     def repaint_chase(self):
 
         canvas.after(200, self.repaint_chase)
         canvas.delete(ALL)
 
-        if not orca.checkGameOver((shark.getX(), shark.getY())):
 
-            orca.move(self)
-            shark.hunt((orca.getX(), orca.getY()))
-            orca.checkGameOver((shark.getX(), shark.getY()))
-            canvas.create_rectangle(orca.getX() * tilesize, orca.getY() * tilesize,
-                                    orca.getX() * tilesize + tilesize,
-                                    orca.getY() * tilesize + tilesize, fill="white")  # Head
-
-            # for i in range(1, orca.getOrcaLength(), 1):
-            #     canvas.create_rectangle(orca.getOrcaX(i) * tilesize, orca.getOrcaY(i) * tilesize,
-            #                             orca.getOrcaX(i) * tilesize + tilesize,
-            #                             orca.getOrcaY(i) * tilesize + tilesize, fill="blue")  # Body
-
-            canvas.create_rectangle(shark.getX() * tilesize, shark.getY() * tilesize,
-                                    shark.getX() * tilesize + tilesize,
-                                    shark.getY() * tilesize + tilesize, fill="red")  # Shark
-
+        if (not INCLUDE_SHARK) or not orca.checkGameOver((shark.getX(), shark.getY())):
+            
             canvas.create_rectangle(chamber.X * tilesize, chamber.Y * tilesize,
                                     chamber.X * tilesize + 3 * tilesize,
                                     chamber.Y * tilesize + 3 * tilesize, fill="grey")  # Shark
@@ -64,13 +49,27 @@ class GameLoop:
                                     (chamber.X + 1) * tilesize + tilesize,
                                     (chamber.Y + 1) * tilesize + tilesize, fill="yellow"
                                 )
+            orca.move(self)
+            if INCLUDE_SHARK:
+                shark.hunt((orca.getX(), orca.getY()), self)
+                orca.checkGameOver((shark.getX(), shark.getY()))
+
+            canvas.create_rectangle(orca.getX() * tilesize, orca.getY() * tilesize,
+                                    orca.getX() * tilesize + tilesize,
+                                    orca.getY() * tilesize + tilesize, fill="white")  # Head
+            if INCLUDE_SHARK:
+                canvas.create_rectangle(shark.getX() * tilesize, shark.getY() * tilesize,
+                                    shark.getX() * tilesize + tilesize,
+                                    shark.getY() * tilesize + tilesize, fill="red")  # Shark
+
+            
                     
 
         else:   # GameOver Message
             global started_gameover_music
             if not started_gameover_music:
                 mixer.music.stop()
-                mixer.music.load("audio/gameover_copy.wav")
+                mixer.music.load("audio/gameover.wav")
                 mixer.music.play(-1)
             started_gameover_music = True
             canvas.delete(ALL)
@@ -91,20 +90,24 @@ class GameLoop:
 started_gameover_music = False
 chamber = Chamber()
 orca = Orca()
-shark = Shark()
 root = Tk()
 
-canvas = Canvas(root, width=300, height=300)
+shark = None
+if INCLUDE_SHARK:
+    shark = Shark()
+
+
+canvas = Canvas(root, width=10 * boardWidth, height=10 * boardHeight)
 canvas.configure(background="blue")
 canvas.pack()
 
 def start_music():
     mixer.init()
-    mixer.music.load("audio/snare_intro_copy.wav")
+    mixer.music.load("audio/snare_intro.wav")
     mixer.music.play()
     while mixer.music.get_busy():
         pass
-    mixer.music.load("audio/puzzle_1_copy.wav")
+    mixer.music.load("audio/chase_1.wav")
     mixer.music.play(-1)
 
 start_music()

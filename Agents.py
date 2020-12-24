@@ -4,7 +4,7 @@ import random
 from pprint import pprint
 
 def isValid(position, game):
-    return position[0] in range(len(game.valid_chase_spots)) and position[1] in range(len(game.valid_chase_spots[0])) and game.valid_chase_spots[position[0]][position[1]]
+    return position[1] in range(len(game.valid_chase_spots)) and position[0] in range(len(game.valid_chase_spots[0])) and game.valid_chase_spots[position[1]][position[0]]
 
 class Shark:
 
@@ -25,7 +25,7 @@ class Shark:
     def canSeeOrca(self, target):
         return True
 
-    def hunt(self, target):
+    def hunt(self, target, game):
         options = [
             (self.X, self.Y),
             (self.X - 1, self.Y),
@@ -38,11 +38,12 @@ class Shark:
 
         for option in options[1:]:
             score = get_manhattan_distance(option, target)
-            if score < best_score:
-                choices = [option]
-                best_score = score
-            elif score == best_score:
-                choices.append(option)
+            if isValid(option, game):
+                if score < best_score:
+                    choices = [option]
+                    best_score = score
+                elif score == best_score:
+                    choices.append(option)
         self.X, self.Y = random.choice(choices)
 
 
