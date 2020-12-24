@@ -109,6 +109,9 @@ class Orca():
         if self.X == coords[0] and self.Y == coords[1]:
             return True # Orca eaten by shark
         return False
+    
+    def checkFinishChase(self, game):
+        return self.getPosition() == game.chamber.getPortal()
 
     def getKey(self, event):
 
@@ -120,6 +123,9 @@ class Orca():
 
     def getY(self):
         return self.Y
+    
+    def getPosition(self):
+        return (self.X, self.Y)
 
     def getPoints(self):
         return self.points

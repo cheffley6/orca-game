@@ -21,3 +21,7 @@ class Chamber:
     
     def getDims(self):
         return self.dims
+    
+    def getPortal(self):
+        # for now:
+        return (self.X + 1, self.Y + 1)

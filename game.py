@@ -20,6 +20,7 @@ loopCount = 0
 class GameLoop:
 
     def __init__(self, chamber):
+        self.chamber = chamber
         self.valid_chase_spots = np.empty((boardHeight, boardWidth))
         chamberX, chamberY = chamber.getX(), chamber.getY()
         entryX, entryY = chamber.getEntry()
@@ -56,6 +57,9 @@ class GameLoop:
                                     (chamber.Y + 1) * tilesize + tilesize, fill="yellow"
                                 )
             orca.move(self)
+            if orca.checkFinishChase(self):
+                # create new area
+                pass
             if INCLUDE_SHARK:
                 global loopCount
                 if loopCount >= 5:
