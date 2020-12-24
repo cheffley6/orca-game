@@ -9,6 +9,7 @@ from Chamber import *
 from config import *
 from time import sleep
 import os
+from Puzzle import Puzzle
 
 import numpy as np
 
@@ -17,9 +18,12 @@ tilesize = 10
 INCLUDE_SHARK = True
 loopCount = 0
 
+
 class GameLoop:
 
     def __init__(self, chamber):
+
+        # initialize valid chase spots
         self.chamber = chamber
         self.valid_chase_spots = np.empty((boardHeight, boardWidth))
         chamberX, chamberY = chamber.getX(), chamber.getY()
@@ -32,14 +36,29 @@ class GameLoop:
         
         self.valid_chase_spots[chamberY+1][chamberX+1] = True
         self.valid_chase_spots[entryY][entryX] = True
-        # print(self.valid_chase_spots)
-        # [:] = (chamber.getDims()[0] + 1) * [chamber.getDims()[1] * [False]]
-        # # self.valid_spots[chamber.getEntry()[0]][chamber.getEntry()[1]] = True
-        # # self.valid_spots[chamber.getX() + 1][chamber.getY() + 1] = True
-        # print("AFTER :", self.valid_spots[chamber.getY():chamber.getY()+chamber.getDims()[0]][chamber.getX():chamber.getX()+chamber.getDims()[1]])
+
+        print(chamberX, chamberY)
+        # initialize puzzle grid
+        self.puzzle = Puzzle(self)
+        self.valid_puzzle_spots = np.empty((boardHeight, boardWidth))
+        self.valid_puzzle_spots.fill(True)
+
+    def renderGameover(self):
+        global started_gameover_music
+        if not started_gameover_music:
+            mixer.music.stop()
+            mixer.music.load("audio/gameover.wav")
+            mixer.music.play(-1)
+        started_gameover_music = True
+        canvas.delete(ALL)
+        canvas.configure(background="black")
+        i = 0
+
+        canvas.create_text(150, 100, fill="red", font="Times 32 bold", text="GAME OVER!")
+
     def repaint_chase(self):
 
-        canvas.after(200, self.repaint_chase)
+        
         canvas.delete(ALL)
 
 
@@ -58,7 +77,15 @@ class GameLoop:
                                 )
             orca.move(self)
             if orca.checkFinishChase(self):
-                # create new area
+                global started_puzzle_music
+                if not started_puzzle_music:
+                    mixer.music.stop()
+                    mixer.music.load("audio/puzzle_1.wav")
+                    mixer.music.play(0)
+                    started_puzzle_music = True
+                return self.render_first_frame_of_puzzle()
+
+
                 pass
             if INCLUDE_SHARK:
                 global loopCount
@@ -77,26 +104,43 @@ class GameLoop:
                 canvas.create_rectangle(shark.getX() * tilesize, shark.getY() * tilesize,
                                     shark.getX() * tilesize + tilesize,
                                     shark.getY() * tilesize + tilesize, fill="red")  # Shark
+            canvas.after(frameDelay, self.repaint_chase)
 
             
                     
 
         else:   # GameOver Message
-            global started_gameover_music
-            if not started_gameover_music:
-                mixer.music.stop()
-                mixer.music.load("audio/gameover.wav")
-                mixer.music.play(-1)
-            started_gameover_music = True
-            canvas.delete(ALL)
-            canvas.configure(background="black")
-            i = 0
+            self.renderGameover()
 
-            canvas.create_text(150, 100, fill="red", font="Times 32 bold", text="GAME OVER!")
+    def render_first_frame_of_puzzle(self):
+        canvas.delete(ALL)
+
+        startX, startY = self.puzzle.start["x"], self.puzzle.start["y"]
+        
+        orca_render = canvas.create_rectangle(startX * tilesize, startY * tilesize,
+                                startX * tilesize + tilesize,
+                                startY * tilesize + tilesize, fill="white")  # Head
+        canvas.after(frameDelay, self.repaint_puzzle, orca_render)
+        orca.setX(startX)
+        orca.setY(startY)
+        endX, endY = self.puzzle.portal["x"], self.puzzle.portal["y"]
+        canvas.create_rectangle(endX * tilesize, endY * tilesize,
+                                endX * tilesize + tilesize,
+                                endY * tilesize + tilesize, fill="yellow")
+    
+    def repaint_puzzle(self, orca_render):
+        canvas.after(frameDelay, self.repaint_puzzle, orca_render)
+        canvas.delete(orca_render)
+        orca.move(self)
+        
+        orca_render = canvas.create_rectangle(orca.getX() * tilesize, orca.getY() * tilesize,
+                                orca.getX() * tilesize + tilesize,
+                                orca.getY() * tilesize + tilesize, fill="white")  # Head
 
 
 
 started_gameover_music = False
+started_puzzle_music = False
 chamber = Chamber()
 orca = Orca()
 root = Tk()
@@ -106,7 +150,7 @@ if INCLUDE_SHARK:
     shark = Shark()
 
 
-canvas = Canvas(root, width=10 * boardWidth, height=10 * boardHeight)
+canvas = Canvas(root, width=10 * boardWidth, height=10 * boardHeight, bd=0, highlightthickness=0,)
 canvas.configure(background="blue")
 canvas.pack()
 

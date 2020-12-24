@@ -63,7 +63,15 @@ class Shark:
         else:
             self.hunt(target, game, options)
 
+
+    # given a game environment with valid spots, return the
+    # next location that follows BFS to the target
+    def huntWithObstacles(self, target, game):
+        print("70  ok")
+        print(bfs(game.valid_chase_spots, Point(self.getX(), self.getY()), Point(target[0], target[1])))
+
     def hunt(self, target, game, options):
+        self.huntWithObstacles(target, game)
         choices = [options[0]]
 
         best_score = 0
@@ -123,6 +131,12 @@ class Orca():
 
     def getY(self):
         return self.Y
+
+    def setX(self, X):
+        self.X = X
+
+    def setY(self, Y):
+        self.Y = Y
     
     def getPosition(self):
         return (self.X, self.Y)
