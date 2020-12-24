@@ -15,16 +15,22 @@ import numpy as np
 tilesize = 10            
 
 INCLUDE_SHARK = True
+loopCount = 0
 
 class GameLoop:
 
     def __init__(self, chamber):
         self.valid_chase_spots = np.empty((boardHeight, boardWidth))
+        chamberX, chamberY = chamber.getX(), chamber.getY()
+        entryX, entryY = chamber.getEntry()
         for index, entry in enumerate(self.valid_chase_spots):
             entry.fill(True)
-            if index in range(chamber.getY(), chamber.getY()+chamber.getDims()[0]):
-                entry[chamber.getX():chamber.getX()+chamber.getDims()[1]] = chamber.getDims()[1] * [False]
+            if index in range(chamberY, chamberY+chamber.getDims()[0]):
+                entry[chamberX:chamberX+chamber.getDims()[1]] = chamber.getDims()[1] * [False]
             self.valid_chase_spots[index] = entry
+        
+        self.valid_chase_spots[chamberY+1][chamberX+1] = True
+        self.valid_chase_spots[entryY][entryX] = True
         # print(self.valid_chase_spots)
         # [:] = (chamber.getDims()[0] + 1) * [chamber.getDims()[1] * [False]]
         # # self.valid_spots[chamber.getEntry()[0]][chamber.getEntry()[1]] = True
@@ -51,8 +57,14 @@ class GameLoop:
                                 )
             orca.move(self)
             if INCLUDE_SHARK:
-                shark.hunt((orca.getX(), orca.getY()), self)
+                global loopCount
+                if loopCount >= 5:
+                    shark.move((orca.getX(), orca.getY()), self)
+                else:
+                    shark.move((orca.getX(), orca.getY()), self, loopCount)
+                    loopCount += 1
                 orca.checkGameOver((shark.getX(), shark.getY()))
+
 
             canvas.create_rectangle(orca.getX() * tilesize, orca.getY() * tilesize,
                                     orca.getX() * tilesize + tilesize,
@@ -77,13 +89,6 @@ class GameLoop:
             i = 0
 
             canvas.create_text(150, 100, fill="red", font="Times 32 bold", text="GAME OVER!")
-            
-            # while i < 2000:    
-            #     i += 1
-            # i = 0
-            # canvas.create_text(150, 100, fill="black", font="Times 32 bold", text="GAME OVER!")
-            # while i < 2000:    
-            #     i += 1
 
 
 
