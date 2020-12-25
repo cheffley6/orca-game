@@ -9,9 +9,11 @@ import queue
 
 class Shark:
 
-    def __init__(self):
-        self.X = random.randint(1, boardWidth - 2)
-        self.Y = random.randint(1, boardHeight - 2)
+    def __init__(self, orca):
+        candidate_position = (random.randint(1, boardWidth - 2), random.randint(1, boardHeight - 2))
+        while get_manhattan_distance(candidate_position, orca.getPosition()) < 0.25 * (boardHeight + boardWidth):
+            candidate_position = (random.randint(1, boardWidth - 2), random.randint(1, boardHeight - 2))
+        self.X, self.Y = candidate_position
         self.lastTenSpots = SpotChecker()
     
     def getPosition(self):

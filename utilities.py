@@ -39,6 +39,7 @@ class Node():
 
 
 def astar(maze, start, end):
+    print("started astar")
     """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
     # Create start and end node
@@ -76,6 +77,7 @@ def astar(maze, start, end):
             while current is not None:
                 path.append(current.position)
                 current = current.parent
+            print("finished astar")
             return path[::-1] # Return reversed path
 
         # Generate children
@@ -119,3 +121,4 @@ def astar(maze, start, end):
 
             # Add the child to the open list
             open_list.append(child)
+    raise Exception("cant go anywhere")

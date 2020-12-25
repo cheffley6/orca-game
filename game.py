@@ -13,7 +13,7 @@ from Puzzle import Puzzle
 
 import numpy as np
 
-tilesize = 10            
+tilesize = 10      
 
 INCLUDE_SHARK = True
 
@@ -137,7 +137,7 @@ root = Tk()
 
 shark = None
 if INCLUDE_SHARK:
-    shark = Shark()
+    shark = Shark(orca)
 
 
 canvas = Canvas(root, width=10 * boardWidth, height=10 * boardHeight, bd=0, highlightthickness=0,)
