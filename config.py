@@ -1,4 +1,4 @@
-boardWidth = 50
-boardHeight = 50
+boardWidth = 30
+boardHeight = 30
 
-frameDelay=80
+frameDelay=300

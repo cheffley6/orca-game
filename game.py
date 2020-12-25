@@ -60,7 +60,7 @@ class GameLoop:
         canvas.delete(ALL)
 
 
-        if not orca.checkGameOver((shark.getX(), shark.getY())):
+        if not INCLUDE_SHARK or not orca.checkGameOver((shark.getX(), shark.getY())):
             
             canvas.create_rectangle(chamber.X * tilesize, chamber.Y * tilesize,
                                     chamber.X * tilesize + 3 * tilesize,
