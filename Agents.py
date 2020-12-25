@@ -1,12 +1,8 @@
 from config import *
 from utilities import *
 import random
-
+import collections
 import queue
-from pprint import pprint
-
-def isValid(position, game):
-    return position[1] in range(len(game.valid_chase_spots)) and position[0] in range(len(game.valid_chase_spots[0])) and game.valid_chase_spots[position[1]][position[0]]
 
 
 
@@ -38,7 +34,7 @@ class Shark:
         nextPosition = None
         choices = [self.getPosition()]
         for option in options[1:]:
-            if isValid(option, game):
+            if isValid(option, game.valid_chase_spots):
                 choices.append(option)
         
         if len(choices) == 0:
@@ -49,7 +45,7 @@ class Shark:
         self.lastTenSpots.add(nextPosition)
         
 
-    def move(self, target, game, loopCount=5):
+    def move(self, target, game):
         options = [
             (self.X, self.Y),
             (self.X - 1, self.Y),
@@ -58,7 +54,7 @@ class Shark:
             (self.X, self.Y + 1)
         ]
         
-        if random.randint(1, 10) == 1 or (self.lastTenSpots.size() < 7 and loopCount >= 5):
+        if random.randint(1, 100) == 1:
             self.moveRandomly(game, options)
         else:
             self.hunt(target, game, options)
@@ -66,36 +62,19 @@ class Shark:
 
     # given a game environment with valid spots, return the
     # next location that follows BFS to the target
-    def huntWithObstacles(self, target, game):
-        print("70  ok")
-        print(bfs(game.valid_chase_spots, Point(self.getX(), self.getY()), Point(target[0], target[1])))
+
 
     def hunt(self, target, game, options):
-        self.huntWithObstacles(target, game)
-        choices = [options[0]]
-
-        best_score = 0
-
-        for option in options[1:]:
-            score = get_manhattan_delta(option, (self.X, self.Y), target)
-            if isValid(option, game):
-                if score < best_score:
-                    choices = [option]
-                    best_score = score
-                elif score == best_score:
-                    choices.append(option)
-        
-        nextPosition = random.choice(choices)
-        self.X, self.Y = nextPosition
-        self.lastTenSpots.add(nextPosition)
+        path = astar(game.valid_chase_spots, self.getPosition(), target)
+        self.X, self.Y = path[1] if len(path) > 1 else path[0]
 
 
 class Orca():
 
     def __init__(self):
 
-        self.X = random.randint(0, boardWidth)
-        self.Y = random.randint(0, boardHeight)
+        self.X = random.randint(1, boardWidth - 1)
+        self.Y = random.randint(1, boardHeight - 1)
         self.key = None
         self.points = 0
 
@@ -110,7 +89,7 @@ class Orca():
 
         attemptedMove = moves[self.key](self.X, self.Y)
         
-        if isValid(attemptedMove, game):
+        if isValid(attemptedMove, game.valid_chase_spots):
             self.X, self.Y = attemptedMove
 
     def checkGameOver(self, coords):

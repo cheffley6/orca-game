@@ -1,6 +1,9 @@
 from collections import OrderedDict, deque
 from config import *
 
+def isValid(position, grid):
+    return position[1] in range(len(grid)) and position[0] in range(len(grid)) and grid[position[1]][position[0]]
+
 def get_manhattan_distance(source, destination):
     return abs(source[0] - destination[0]) + abs(source[1] - destination[1])
 
@@ -19,72 +22,100 @@ class SpotChecker:
     def size(self):
         return len(set(self.store))
 
- 
-# To store matrix cell cordinates
-class Point:
-    def __init__(self,x: int, y: int):
-        self.x = x
-        self.y = y
- 
-def isValidBfs(row: int, col: int):
-    return (row >= 0) and (row < boardHeight) and (col >= 0) and (col < boardWidth)
 
-# A data structure for queue used in BFS
-class queueNode:
-    def __init__(self,pt: Point, dist: int):
-        self.pt = pt  # The cordinates of the cell
-        self.dist = dist  # Cell's distance from the source
- 
-# These arrays are used to get row and column 
-# numbers of 4 neighbours of a given cell 
-rowNum = [-1, 0, 0, 1]
-colNum = [0, -1, 1, 0]
- 
-# Function to find the shortest path between 
-# a given source cell to a destination cell. 
-def bfs(mat, src: Point, dest: Point):
-     
-    # check source and destination cell 
-    # of the matrix have value 1 
-    if mat[src.x][src.y]!=1 or mat[dest.x][dest.y]!=1:
-        return -1
-     
-    visited = [[False for i in range(boardHeight)] for j in range(boardWidth)]
-     
-    # Mark the source cell as visited 
-    visited[src.x][src.y] = True
-     
-    # Create a queue for BFS 
-    q = deque()
-     
-    # Distance of source cell is 0
-    s = queueNode(src,0)
-    q.append(s) #  Enqueue source cell
-     
-    # Do a BFS starting from source cell 
-    while q:
- 
-        curr = q.popleft() # Dequeue the front cell
-         
-        # If we have reached the destination cell, 
-        # we are done 
-        pt = curr.pt
-        if pt.x == dest.x and pt.y == dest.y:
-            return curr.dist
-         
-        # Otherwise enqueue its adjacent cells 
-        for i in range(4):
-            row = pt.x + rowNum[i]
-            col = pt.y + colNum[i]
-             
-            # if adjacent cell is valid, has path  
-            # and not visited yet, enqueue it.
-            if (isValidBfs(row,col) and mat[row][col] == 1 and not visited[row][col]):
-                visited[row][col] = True
-                Adjcell = queueNode(Point(row,col),
-                                    curr.dist+1)
-                q.append(Adjcell)
-    
-    print(q)
-    # Return -1 if destination cannot be reached 
-    return -1
+class Node():
+    """A node class for A* Pathfinding"""
+
+    def __init__(self, parent=None, position=None):
+        self.parent = parent
+        self.position = position
+
+        self.g = 0
+        self.h = 0
+        self.f = 0
+
+    def __eq__(self, other):
+        return self.position == other.position
+
+
+def astar(maze, start, end):
+    """Returns a list of tuples as a path from the given start to the given end in the given maze"""
+
+    # Create start and end node
+    start_node = Node(None, start)
+    start_node.g = start_node.h = start_node.f = 0
+    end_node = Node(None, end)
+    end_node.g = end_node.h = end_node.f = 0
+
+    # Initialize both open and closed list
+    open_list = []
+    closed_list = []
+
+    # Add the start node
+    open_list.append(start_node)
+
+    # Loop until you find the end
+    while len(open_list) > 0:
+
+        # Get the current node
+        current_node = open_list[0]
+        current_index = 0
+        for index, item in enumerate(open_list):
+            if item.f < current_node.f:
+                current_node = item
+                current_index = index
+
+        # Pop current off open list, add to closed list
+        open_list.pop(current_index)
+        closed_list.append(current_node)
+
+        # Found the goal
+        if current_node == end_node:
+            path = []
+            current = current_node
+            while current is not None:
+                path.append(current.position)
+                current = current.parent
+            return path[::-1] # Return reversed path
+
+        # Generate children
+        children = []
+        for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0)]: # Adjacent squares
+
+            # Get node position
+            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+
+            # Make sure within range
+            if not isValid(node_position, maze):
+                continue
+
+            # Make sure walkable terrain
+            if maze[node_position[0]][node_position[1]] != 1:
+                continue
+
+            # Create new node
+            new_node = Node(current_node, node_position)
+
+            # Append
+            children.append(new_node)
+
+        # Loop through children
+        for child in children:
+
+            # Child is on the closed list
+            for closed_child in closed_list:
+                if child == closed_child:
+                    continue
+
+            # Create the f, g, and h values
+            child.g = current_node.g + 1
+            child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
+            child.f = child.g + child.h
+
+            # Child is already in the open list
+            for open_node in open_list:
+                if child == open_node and child.g > open_node.g:
+                    continue
+
+            # Add the child to the open list
+            open_list.append(child)

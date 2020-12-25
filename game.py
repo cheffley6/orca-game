@@ -16,7 +16,6 @@ import numpy as np
 tilesize = 10            
 
 INCLUDE_SHARK = True
-loopCount = 0
 
 
 class GameLoop:
@@ -37,7 +36,6 @@ class GameLoop:
         self.valid_chase_spots[chamberY+1][chamberX+1] = True
         self.valid_chase_spots[entryY][entryX] = True
 
-        print(chamberX, chamberY)
         # initialize puzzle grid
         self.puzzle = Puzzle(self)
         self.valid_puzzle_spots = np.empty((boardHeight, boardWidth))
@@ -62,7 +60,7 @@ class GameLoop:
         canvas.delete(ALL)
 
 
-        if (not INCLUDE_SHARK) or not orca.checkGameOver((shark.getX(), shark.getY())):
+        if not orca.checkGameOver((shark.getX(), shark.getY())):
             
             canvas.create_rectangle(chamber.X * tilesize, chamber.Y * tilesize,
                                     chamber.X * tilesize + 3 * tilesize,
@@ -84,16 +82,8 @@ class GameLoop:
                     mixer.music.play(0)
                     started_puzzle_music = True
                 return self.render_first_frame_of_puzzle()
-
-
-                pass
             if INCLUDE_SHARK:
-                global loopCount
-                if loopCount >= 5:
-                    shark.move((orca.getX(), orca.getY()), self)
-                else:
-                    shark.move((orca.getX(), orca.getY()), self, loopCount)
-                    loopCount += 1
+                shark.move((orca.getX(), orca.getY()), self)
                 orca.checkGameOver((shark.getX(), shark.getY()))
 
 
