@@ -119,7 +119,13 @@ class GameLoop:
                                 endY * tilesize + tilesize, fill="yellow")
     
     def repaint_puzzle(self, orca_render):
-        canvas.after(frameDelay, self.repaint_puzzle, orca_render)
+        if not mixer.music.get_busy():
+            start_chase_music()
+            self = GameLoop(Chamber())
+            canvas.after(frameDelay, self.repaint_chase)
+            
+        else:
+            canvas.after(frameDelay, self.repaint_puzzle, orca_render)
         canvas.delete(orca_render)
         orca.move(self)
         
@@ -144,16 +150,20 @@ canvas = Canvas(root, width=10 * boardWidth, height=10 * boardHeight, bd=0, high
 canvas.configure(background="blue")
 canvas.pack()
 
-def start_music():
+
+def one_time_music_start():
     mixer.init()
     mixer.music.load("audio/snare_intro.wav")
     mixer.music.play()
+
+def start_chase_music():
     while mixer.music.get_busy():
         pass
     mixer.music.load("audio/chase_1.wav")
     mixer.music.play(-1)
 
-start_music()
+one_time_music_start()
+start_chase_music()
 
 gameLoop = GameLoop(chamber)
 gameLoop.repaint_chase()
