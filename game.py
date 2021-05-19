@@ -18,6 +18,23 @@ tilesize = 10
 INCLUDE_SHARK = True
 
 
+class ChaseLoop:
+
+    def __init__(self, board_height, board_width):
+        self.chamber = Chamber(board_height, board_width)
+        self.valid_chase_spots = self.initialize_chase_spots(board_height, board_width)
+    
+    def initialize_chase_spots(self, board_height, board_width):
+        chamber_entry_point = self.chamber.getEntry()
+
+        chase_spots = np.empty((board_height, board_width))
+        for index, entry in enumerate(chase_spots):
+            entry.fill(True)
+
+
+
+
+
 class GameLoop:
 
     def __init__(self, chamber):
@@ -26,7 +43,6 @@ class GameLoop:
         self.chamber = chamber
         self.valid_chase_spots = np.empty((boardHeight, boardWidth))
         chamberX, chamberY = chamber.getX(), chamber.getY()
-        entryX, entryY = chamber.getEntry()
         for index, entry in enumerate(self.valid_chase_spots):
             entry.fill(True)
             if index in range(chamberY, chamberY+chamber.getDims()[0]):
@@ -94,7 +110,7 @@ class GameLoop:
                 canvas.create_rectangle(shark.getX() * tilesize, shark.getY() * tilesize,
                                     shark.getX() * tilesize + tilesize,
                                     shark.getY() * tilesize + tilesize, fill="red")  # Shark
-            canvas.after(frameDelay, self.repaint_chase)
+            canvas.after(frame_delay, self.repaint_chase)
 
             
                     
@@ -110,7 +126,7 @@ class GameLoop:
         orca_render = canvas.create_rectangle(startX * tilesize, startY * tilesize,
                                 startX * tilesize + tilesize,
                                 startY * tilesize + tilesize, fill="white")  # Head
-        canvas.after(frameDelay, self.repaint_puzzle, orca_render)
+        canvas.after(frame_delay, self.repaint_puzzle, orca_render)
         orca.setX(startX)
         orca.setY(startY)
         endX, endY = self.puzzle.portal["x"], self.puzzle.portal["y"]
@@ -122,10 +138,10 @@ class GameLoop:
         if not mixer.music.get_busy():
             start_chase_music()
             self = GameLoop(Chamber())
-            canvas.after(frameDelay, self.repaint_chase)
+            canvas.after(frame_delay, self.repaint_chase)
             
         else:
-            canvas.after(frameDelay, self.repaint_puzzle, orca_render)
+            canvas.after(frame_delay, self.repaint_puzzle, orca_render)
         canvas.delete(orca_render)
         orca.move(self)
         

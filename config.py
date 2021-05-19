@@ -1,4 +1,4 @@
-boardWidth = 30
-boardHeight = 30
+START_BOARD_WIDTH = 30
+START_BOARD_HEIGHT= 30
 
-frameDelay=300
+frame_delay=300
